@@ -1,1 +1,3 @@
 window 需要配置hadoop配置的方法和java类似
+环境变量：HADOOP_HOME 资源路径
+系统路径：Path 添加 ;$HADOOP_HOME/bin
