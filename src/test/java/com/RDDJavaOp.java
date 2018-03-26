@@ -3,9 +3,11 @@ package com;
 import com.aggregate.AvgCount;
 import org.apache.commons.lang.StringUtils;
 import org.apache.spark.SparkConf;
+import org.apache.spark.api.java.JavaDoubleRDD;
 import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function2;
+import org.apache.spark.storage.StorageLevel;
 import org.junit.Test;
 
 import java.util.Arrays;
@@ -13,6 +15,7 @@ import java.util.Arrays;
 public class RDDJavaOp {
     @Test
     public void filterRddTest() {
+
         SparkConf conf = new SparkConf().setAppName("wordCount");
         JavaSparkContext sc = new JavaSparkContext(conf);
         JavaRDD<String> inputRDD = sc.textFile("E:\\workspace\\Kettle-Java-Test\\pom.xml");
@@ -81,6 +84,13 @@ public class RDDJavaOp {
         };
         AvgCount result1 = rdd.aggregate(initial, addAndCount ,combine);
         System.out.println(result1.avg());
+
+        JavaDoubleRDD result2 = rdd.mapToDouble((x) -> (double) x*x );
+        System.out.println(result2.mean());
+        /**
+         * rdd 数据缓存到磁盘上太刺激了
+         */
+        rdd.persist(StorageLevel.DISK_ONLY());
 
     }
 
