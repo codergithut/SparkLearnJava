@@ -1,5 +1,7 @@
 package com;
 
+import com.aggregate.AvgCount;
+import org.apache.commons.lang.StringUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -34,6 +36,35 @@ public class ApplicationRun {
                 return x + y;
             }
         });
-        counts.saveAsTextFile("E:\\workspace\\Kettle-Java-Test\\pom_copy.xml");
+//        counts.saveAsTextFile("E:\\workspace\\Kettle-Java-Test\\pom_copy.xml");
+        JavaRDD<Integer> rdd = sc.parallelize(Arrays.asList(1, 2, 3, 4));
+        JavaRDD<Integer> result = rdd.map( x -> x*x );
+        System.out.println(StringUtils.join(result.collect(), ","));
+
+        JavaRDD<Integer> rdd1 = sc.parallelize(Arrays.asList(1, 2, 3, 4));
+
+        Integer sum = rdd1.reduce( (x, y) -> x + y );
+        System.out.println(sum);
+
+        /**
+         * spark统计操作 累加操作
+         */
+        AvgCount initial = new AvgCount(0, 0);
+        Function2<AvgCount, Integer, AvgCount> addAndCount = (a, x) -> {
+            a.total += x;
+            a.num += 1;
+            return a;
+        };
+
+        /**
+         * 合并操作
+         */
+        Function2<AvgCount, AvgCount, AvgCount> combine = (a, b) -> {
+            a.total += b.total;
+            a.num += b.num;
+            return a;
+        };
+        AvgCount result1 = rdd.aggregate(initial, addAndCount ,combine);
+        System.out.println(result1.avg());
     }
 }
